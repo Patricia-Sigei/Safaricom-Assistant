@@ -1,93 +1,127 @@
-# Safaricom-Assistant
+```markdown
+# Safaricom Assistant
 
-## 1️⃣ Entry Point
-- User opens the chat.
-- System checks:
-    - Does a session exist? → Resume context if yes
-    - Otherwise → Start fresh conversation
+## Overview
+**Safaricom Assistant** is an intelligent recommendation system that helps users choose the best mobile data bundles based on their usage, budget, and preferences. It progressively collects user information, builds a usage profile, matches it against available bundles, and provides clear, explainable recommendations. Real-time updates are supported via **Socket.IO**, and session/state management uses **Redis**. User data is stored in **PostgreSQL**.
 
 ---
 
-## 2️⃣ Determine Missing Information
-Required context for recommendation:
-1. Primary usage (video, social, browsing)
-2. Budget range
-3. Duration preference (number of days)
-4. Usage frequency (low/medium/high)
+## Features
 
-Logic:
-- Check which fields are missing in the user context.
-- Ask only for missing information (progressive disclosure).
-- Validate input type and format.
+1. **Session Management**
+   - Detects if a user session exists and resumes context automatically.
+   - Supports starting fresh conversations for new users.
+   - Stores session and profile state in **Redis** for fast access.
 
----
+2. **Progressive Information Gathering**
+   - Collects only missing information from the user to avoid repetitive questions.
+   - Validates input type and format for accuracy.
+   - Required context includes:
+     - Primary usage (e.g., video, social, browsing)
+     - Budget range
+     - Duration preference (number of days)
+     - Usage frequency (low / medium / high)
 
-## 3️⃣ Build User Profile
-Once all fields are captured:
-- Construct a usage profile:
-    - Usage type: video/social/browsing
-    - Budget: X KES
-    - Duration: Y days
-    - Frequency: low/medium/high
-- This profile is used for matching bundles.
+3. **User Profile Construction**
+   - Builds a personalized usage profile once all required fields are captured:
+     - Usage type
+     - Budget
+     - Duration
+     - Frequency
+   - Profile stored in **PostgreSQL** for analytics and recommendations.
 
----
+4. **Bundle Matching Logic**
+   - Filters available bundles based on:
+     - Budget constraints
+     - Suitability for primary usage
+     - Duration preference
+   - Ranks remaining bundles:
+     - Closest match to usage type
+     - Alignment with duration preference
+     - Minimization of tradeoffs (e.g., fast expiry, cost)
 
-## 4️⃣ Compare Profile Against Bundles
-Input: User profile + bundle knowledge base
+5. **Real-Time Recommendations**
+   - Uses **Socket.IO** to push bundle suggestions to the user instantly.
+   - Allows live updates if usage context changes or new bundles are available.
 
-Logic:
-1. Filter out bundles exceeding user budget.
-2. Filter out bundles not suitable for primary usage.
-3. Filter out bundles not meeting duration preference.
-4. Rank remaining bundles:
-    - Closest match to usage type
-    - Align duration preference
-    - Minimize tradeoffs (fast expiry, cost, etc.)
-    
-Output: Top recommended bundle(s) + optional alternatives.
+6. **Recommendation Explanation**
+   - Provides reasoning for each recommended bundle, including:
+     - Why it fits the user's profile
+     - Potential tradeoffs
+     - Price and duration
+   - Example:  
+     *"Bundle X is recommended for video users, within your budget, lasts Y days. Note: heavy video use may exhaust it quickly."*
 
----
+7. **User Options & Next Actions**
+   - Accept / Redeem bundle
+   - Explore alternative bundles
+   - Connect with human support
+   - Logic:
+     - Accept → hand off to purchase or mark as accepted
+     - Explore → show next-best options
+     - Support → connect to an agent
 
-## 5️⃣ Generate Explanation
-- For each recommended bundle:
-    - Explain why it fits user needs
-    - Highlight tradeoffs
-    - Include price and duration
-- Example:
-    - "Bundle X is recommended for video users, within your budget, lasts Y days. Note: heavy video use may exhaust it quickly."
-
----
-
-## 6️⃣ Present Recommendation & Next Actions
-Options to present:
-1. Accept / Redeem bundle
-2. Explore alternatives
-3. Connect with human support
-
-Logic:
-- Accept → hand off to purchase or mark as “accepted”
-- Explore → show next-best options
-- Support → connect to agent
+8. **Edge Case Handling**
+   - Missing or unclear information → prompts for clarification or selectable options
+   - No suitable bundle → suggests adjusting budget/duration or presents alternatives
+   - Conflicting answers → detects contradictions and requests user adjustments
 
 ---
 
-## 7️⃣ Handle Edge Cases / Failures
-- Missing info or unclear answer → prompt for clarification or provide selectable options
-- No suitable bundle → suggest adjusting budget/duration or show alternatives
-- Conflicting answers → detect contradictions and prompt user to adjust
+## Key Principles
+
+1. **Progressive Questioning** – ask only what's missing.  
+2. **Deterministic Reasoning** – recommendations are explainable.  
+3. **Fit-First Matching** – prioritize usage → budget → duration → tradeoffs.  
+4. **Explanation Layer** – every recommendation is justified.  
+5. **Edge-Case Handling** – validate input, clarify ambiguities, and provide fallback options.
 
 ---
 
-## 8️⃣ Session Management
-- Store user context until conversation ends
-- Optional: allow user to resume later
+## Technology Stack
+- **Frontend:** React (Vite)  
+- **Backend:** Node.js + Express + Socket.IO  
+- **Database:** PostgreSQL  
+- **Caching / Session Management:** Redis  
+- **Real-Time Communication:** Socket.IO  
 
 ---
 
-## 9️⃣ Key Principles
-1. Progressive questioning: only ask what’s missing
-2. Deterministic reasoning: every recommendation is explainable
-3. Fit-first matching: usage → budget → duration → tradeoffs
-4. Explanation layer: always justify recommendations
-5. Edge-case handling: validate, clarify, fallback
+## Getting Started
+
+### Clone the Repository
+```bash
+git clone <repo-url>
+cd Safaricom-Assistant
+```
+
+### Install Dependencies
+```bash
+# Backend
+cd server
+npm install
+
+# Frontend
+cd ../client
+npm install
+```
+
+### Run Locally
+```bash
+# Backend
+cd server
+npm run dev
+
+# Frontend
+cd ../client
+npm run dev
+```
+
+---
+
+## Future Improvements
+- Enhance recommendation ranking algorithm using analytics from PostgreSQL
+- Implement authentication for persistent user profiles
+- Add multilingual support
+- Optimize Redis caching strategies for large-scale deployment
+```
