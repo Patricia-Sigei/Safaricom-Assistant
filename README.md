@@ -1,4 +1,3 @@
-```markdown
 # Safaricom Assistant
 
 ## Overview
