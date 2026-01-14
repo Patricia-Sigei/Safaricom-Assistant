@@ -1,8 +1,7 @@
 # Safaricom Assistant
 
 ## Overview
-**Safaricom Assistant** is an intelligent recommendation system that helps users choose the best mobile data bundles based on their usage, budget, and preferences. It progressively collects user information, builds a usage profile, matches it against available bundles, and provides clear, explainable recommendations. Real-time updates are supported via **Socket.IO**, and session/state management uses **Redis**. User data is stored in **PostgreSQL**.
-
+**Safaricom Assistant** is an intelligent recommendation system that helps users choose the best mobile data bundles based on their usage, budget, and preferences. It progressively collects user information, builds a usage profile, matches it against available bundles, and provides clear, explainable recommendations. 
 ---
 
 ## Features
