@@ -5,11 +5,171 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+
+enum UsageType {
+  VIDEO
+  SOCIAL
+  BROWSING
+  OTHER
+}
+
+enum UsageFrequency {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum BundleType {
+  VIDEO
+  SOCIAL
+  BROWSING
+  MIXED
+  WHATSAPP
+  YOUTUBE
+  FACEBOOK
+  NIGHT
+  CALLS
+}
+
+enum ExpiryType {
+  END_OF_DAY
+  HOURS_FROM_ACTIVATION
+  FIXED_DATE
+}
+
+enum RecommendationStatus {
+  PENDING
+  ACCEPTED
+  REDEEMED
+  IGNORED
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  phone     String    @unique
+  name      String?
+  email     String?   @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  profile         UserProfile?
+  sessions        Session[]
+  recommendations BundleRecommendation[]
+  usageLogs       UsageLog[]
+}
+
+
+model UserProfile {
+  id             Int            @id @default(autoincrement())
+  user           User           @relation(fields: [userId], references: [id])
+  userId         Int            @unique
+  primaryUsage   UsageType
+  budgetMin      Float
+  budgetMax      Float
+  durationDays   Int
+  usageFrequency UsageFrequency
+  completed      Boolean        @default(false)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model Session {
+  id          Int       @id @default(autoincrement())
+  user        User      @relation(fields: [userId], references: [id])
+  userId      Int
+  sessionToken String   @unique
+  stateJson   Json
+  startedAt   DateTime  @default(now())
+  lastActiveAt DateTime @updatedAt
+
+  edgeCases EdgeCasePrompt[]
+  usageLogs UsageLog[]
+}
+
+// using safaricom model
+model Bundle {
+  id            Int       @id @default(autoincrement())
+  name          String
+  type          BundleType
+  price         Float
+  durationDays  Int
+  dataAmountMb  Float
+  bonusDataMb   Float?        // Optional bonus data
+  bonusSms      Int?          // Optional bonus SMS
+  bonusCallsMin Int?          // Optional bonus call minutes
+  expiryType    ExpiryType
+  autoRenew     Boolean       @default(false)
+  planRestriction String?     // e.g., "Postpaid only"
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Many-to-many for platform-specific tags
+  tags BundleTagMapping[]
+
+  recommendations BundleRecommendation[]
+  usageLogs       UsageLog[]
+}
+
+// Bundle type e.g YouTube, WhatsApp, Night Data
+model BundleTag {
+  id      Int     @id @default(autoincrement())
+  name    String  @unique
+  bundles BundleTagMapping[]
+}
+
+// Join table for Bundle and BundleTag
+model BundleTagMapping {
+  id       Int     @id @default(autoincrement())
+  bundle   Bundle  @relation(fields: [bundleId], references: [id])
+  bundleId Int
+  tag      BundleTag @relation(fields: [tagId], references: [id])
+  tagId    Int
+}
+
+// Bundle Recommendations
+model BundleRecommendation {
+  id          Int       @id @default(autoincrement())
+  user        User      @relation(fields: [userId], references: [id])
+  userId      Int
+  bundle      Bundle    @relation(fields: [bundleId], references: [id])
+  bundleId    Int
+  score       Float?
+  reason      String
+  recommendedAt DateTime @default(now())
+  status      RecommendationStatus @default(PENDING)
+}
+
+// Usage Logs
+model UsageLog {
+  id          Int       @id @default(autoincrement())
+  user        User      @relation(fields: [userId], references: [id])
+  userId      Int
+  session     Session?  @relation(fields: [sessionId], references: [id])
+  sessionId   Int?
+  bundle      Bundle?   @relation(fields: [bundleId], references: [id])
+  bundleId    Int?
+  usageType   UsageType
+  amountUsedMb Float
+  timestamp   DateTime  @default(now())
+}
+
+// Edge Case / Clarifications
+model EdgeCasePrompt {
+  id        Int       @id @default(autoincrement())
+  session   Session   @relation(fields: [sessionId], references: [id])
+  sessionId Int
+  question  String
+  response  String?
+  resolved  Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
