@@ -8,7 +8,7 @@ app.use(bodyParser.json());
 
 // Sample route
 app.get("/", (req, res) => {
-  res.send("Hello World!");
+  res.send("Safaricom Assistant!");
 });
 
 export default app;
