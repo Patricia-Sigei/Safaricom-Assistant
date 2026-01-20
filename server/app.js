@@ -6,7 +6,6 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-// Sample route
 app.get("/", (req, res) => {
   res.send("Safaricom Assistant!");
 });
