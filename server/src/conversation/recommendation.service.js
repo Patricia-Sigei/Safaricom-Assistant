@@ -3,8 +3,8 @@ import * as scorer from "../recommendationEngine/scorer.js";
 import * as explanation from "../recommendationEngine/explanation.js";
 
 export async function getRecommendations(profile) {
-  const chatBundles = await match.matchBundles(profile);
-  const scored = scorer.scoreBundles(chatBundles, profile);
+  const recommendedBundles = await match.matchBundles(profile);
+  const scored = scorer.scoreBundles(recommendedBundles, profile);
   const recommended = explanation.explainBundles(scored, profile);
 
   return recommended.map((bundle) => ({
