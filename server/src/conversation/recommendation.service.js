@@ -1,0 +1,24 @@
+import * as match from "../recommendationEngine/match.js";
+import * as scorer from "../recommendationEngine/scorer.js";
+import * as explanation from "../recommendationEngine/explanation.js";
+
+export async function getRecommendations(profile) {
+  const chatBundles = await match.matchBundles(profile);
+  const scored = scorer.scoreBundles(chatBundles, profile);
+  const recommended = explanation.explainBundles(scored, profile);
+
+  return recommended.map((bundle) => ({
+    id: bundle.id,
+    name: bundle.name,
+    price: bundle.price,
+    durationDays: bundle.durationDays,
+    dataAmountMb: bundle.dataAmountMb,
+    bonusDataMb: bundle.bonusDataMb,
+    bonusSms: bundle.bonusSms,
+    bonusCallsMin: bundle.bonusCallsMin,
+    expiryType: bundle.expiryType,
+    autoRenew: bundle.autoRenew,
+    tags: bundle.tags.map((t) => t.tag.name),
+    explanation: bundle.explanation,
+  }));
+}

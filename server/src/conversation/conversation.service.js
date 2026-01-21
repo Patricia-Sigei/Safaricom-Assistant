@@ -1,24 +1,38 @@
-import * as match from "../recommendationEngine/match.js";
-import * as scorer from "../recommendationEngine/scorer.js";
-import * as explanation from "../recommendationEngine/explanation.js";
+import { getIO } from "../config/socket.js";
+import { getSession, saveSession } from "../middleware/sessionMiddleware.js";
+import { getNextStep } from "../conversation/conversation.rules.js";
+import { getRecommendations } from "./recommendation.service.js";
 
-export async function getRecommendations(profile) {
-  const chatBundles = await match.matchBundles(profile);
-  const scored = scorer.scoreBundles(chatBundles, profile);
-  const recommended = explanation.explainBundles(scored, profile);
+export async function handleUserMessage(userId, message) {
+  let session = (await getSession(userId)) || { profile: {} };
+  const profile = session.profile;
 
-  return recommended.map((bundle) => ({
-    id: bundle.id,
-    name: bundle.name,
-    price: bundle.price,
-    durationDays: bundle.durationDays,
-    dataAmountMb: bundle.dataAmountMb,
-    bonusDataMb: bundle.bonusDataMb,
-    bonusSms: bundle.bonusSms,
-    bonusCallsMin: bundle.bonusCallsMin,
-    expiryType: bundle.expiryType,
-    autoRenew: bundle.autoRenew,
-    tags: bundle.tags.map((t) => t.tag.name),
-    explanation: bundle.explanation,
-  }));
+  if (session.lastField) {
+    profile[session.lastField] = message.trim();
+    session.lastField = null;
+    await saveSession(userId, session);
+  }
+
+  const step = getNextStep(profile);
+
+  if (!step.profileComplete) {
+    session.lastField = step.nextField;
+    await saveSession(userId, session);
+
+    return getIO().to(userId).emit("assistant_response", {
+      message: step.question,
+    });
+  }
+
+  const recommendedBundles = await getRecommendations(profile);
+
+  getIO().to(userId).emit("bundle_recommendations", recommendedBundles);
+
+  getIO().to(userId).emit("assistant_response", {
+    message:
+      "Here are the best bundles for you. You can select one by replying with its name or ask for alternatives.",
+  });
+
+  session.lastRecommendation = recommendedBundles.map((b) => b.id);
+  await saveSession(userId, session);
 }
