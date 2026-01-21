@@ -119,14 +119,14 @@ model Bundle {
   usageLogs       UsageLog[]
 }
 
-// Bundle type e.g YouTube, WhatsApp, Night Data
+
 model BundleTag {
   id      Int     @id @default(autoincrement())
   name    String  @unique
   bundles BundleTagMapping[]
 }
 
-// Join table for Bundle and BundleTag
+
 model BundleTagMapping {
   id       Int     @id @default(autoincrement())
   bundle   Bundle  @relation(fields: [bundleId], references: [id])
