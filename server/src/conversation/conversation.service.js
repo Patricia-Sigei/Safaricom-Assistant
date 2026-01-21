@@ -1,26 +1,24 @@
-import bundleService from "../features/bundles/bundles.service.js";
+import * as match from "../recommendationEngine/match.js";
+import * as scorer from "../recommendationEngine/scorer.js";
+import * as explanation from "../recommendationEngine/explanation.js";
 
 export async function getRecommendations(profile) {
-  const bundles = await bundleService.findBundles(profile);
+  const chatBundles = await match.matchBundles(profile);
+  const scored = scorer.scoreBundles(chatBundles, profile);
+  const recommended = explanation.explainBundles(scored, profile);
 
-  return bundles.map((bundle) => {
-    const tagNames = bundle.tags.map((mapping) => mapping.tag.name);
-    return {
-      id: bundle.id,
-      name: bundle.name,
-      price: bundle.price,
-      durationDays: bundle.durationDays,
-      dataAmountMb: bundle.dataAmountMb,
-      bonusDataMb: bundle.bonusDataMb,
-      bonusSms: bundle.bonusSms,
-      bonusCallsMin: bundle.bonusCallsMin,
-      expiryType: bundle.expiryType,
-      autoRenew: bundle.autoRenew,
-      explanation:
-        tagNames.length > 0
-          ? `Bundle ${bundle.name} is recommended for ${profile.usageType} users.`
-          : `Bundle ${bundle.name} fits any usage type.`,
-      tags: tagNames,
-    };
-  });
+  return recommended.map((bundle) => ({
+    id: bundle.id,
+    name: bundle.name,
+    price: bundle.price,
+    durationDays: bundle.durationDays,
+    dataAmountMb: bundle.dataAmountMb,
+    bonusDataMb: bundle.bonusDataMb,
+    bonusSms: bundle.bonusSms,
+    bonusCallsMin: bundle.bonusCallsMin,
+    expiryType: bundle.expiryType,
+    autoRenew: bundle.autoRenew,
+    tags: bundle.tags.map((t) => t.tag.name),
+    explanation: bundle.explanation,
+  }));
 }
