@@ -1,5 +1,5 @@
 import { getIO } from "../config/socket.js";
-import { getSession, saveSession } from "../middleware/sessionMiddleware.js";
+import { getSession, saveSession } from "../utils/sessionHelpers.js";
 import { getNextStep } from "../conversation/conversation.rules.js";
 import { getRecommendations } from "./recommendation.service.js";
 

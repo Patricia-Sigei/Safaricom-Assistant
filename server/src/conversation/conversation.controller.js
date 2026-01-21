@@ -1,5 +1,5 @@
 import { getNextStep } from "./conversation.rules.js";
-import { getRecommendations } from "./conversation.service.js";
+import { getRecommendations } from "./recommendation.service.js";
 import redis from "../config/redis.js";
 import { getIO } from "../config/socket.js";
 
