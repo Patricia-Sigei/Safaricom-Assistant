@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import MainAppBar from "@/components/common/MainAppBar";
+import Style from "@/theme/Style";
 
 export const metadata: Metadata = {
   title: "Safaricom Assistant",
@@ -14,8 +15,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <MainAppBar />
-        {children}
+        <Style>
+          <MainAppBar />
+          {children}
+        </Style>
       </body>
     </html>
   );
