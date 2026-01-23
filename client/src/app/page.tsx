@@ -1,6 +1,8 @@
 "use client";
 
 import { Box, Typography } from "@mui/material";
+import ChatWindow from "@/components/chat/ChatWindow";
+
 export default function Home() {
   return (
     <Box
@@ -11,8 +13,9 @@ export default function Home() {
       height="100vh"
     >
       <Typography variant="h3" gutterBottom>
-        Welcome to Safaricom Assistant
+        Let's Help You Find the Best Data Bundle!
       </Typography>
+      <ChatWindow />
     </Box>
   );
 }
