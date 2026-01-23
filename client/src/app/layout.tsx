@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import MainAppBar from "@/components/common/MainAppBar";
 
 export const metadata: Metadata = {
   title: "Safaricom Assistant",
@@ -13,7 +13,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <MainAppBar />
+        {children}
+      </body>
     </html>
   );
 }
