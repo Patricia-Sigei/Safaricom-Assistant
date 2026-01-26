@@ -7,7 +7,10 @@ export async function getRecommendations(profile) {
   const scored = scorer.scoreBundles(recommendedBundles, profile);
   const recommended = explanation.explainBundles(scored, profile);
 
-  return recommended.map((bundle) => ({
+  const TOP_K = 5;
+  const topResults = recommended.slice(0, TOP_K);
+
+  return topResults.map((bundle) => ({
     id: bundle.id,
     name: bundle.name,
     price: bundle.price,
