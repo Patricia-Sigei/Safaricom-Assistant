@@ -1,3 +1,5 @@
+// "use client";
+
 import type { Metadata } from "next";
 import MainAppBar from "@/components/common/MainAppBar";
 import Style from "@/theme/Style";
