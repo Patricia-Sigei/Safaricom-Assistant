@@ -3,18 +3,22 @@ export function scoreBundles(bundles, profile) {
     .map((bundle) => {
       let score = 0;
 
-      const priceDiff = profile.budget - bundle.price;
-      score += Math.max(0, 50 - Math.abs(priceDiff));
+      // Tag relevance
+      if (bundle.tags.length > 0) score += 30;
 
-      if (
-        bundle.tags.some(
-          (t) => t.tag.name.toLowerCase() === profile.usageType.toLowerCase(),
-        )
-      ) {
-        score += 30;
-      }
+      // Price closeness
+      const priceDiff = Math.abs(bundle.price - profile.budget);
+      score += Math.max(0, 30 - priceDiff);
 
-      if (bundle.durationDays === profile.durationDays) score += 20;
+      // Duration match
+      const durationDiff = Math.abs(bundle.durationDays - profile.duration);
+      score += Math.max(0, 20 - durationDiff);
+
+      // Frequency logic
+      if (profile.frequency === "high" && bundle.durationDays <= 7) score += 20;
+      if (profile.frequency === "medium" && bundle.durationDays <= 14)
+        score += 20;
+      if (profile.frequency === "low" && bundle.durationDays >= 30) score += 20;
 
       return { ...bundle, score };
     })
