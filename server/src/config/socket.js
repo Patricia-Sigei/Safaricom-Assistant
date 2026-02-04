@@ -13,7 +13,11 @@ export function initSocket(server) {
       console.log("Received from client:", msg);
 
       socket.emit("assistant_response", {
-        message: `Assistant received: ${msg}`,
+        message: `Got it. I can help you find the best bundle for your needs.
+
+To narrow this down quickly:
+
+• How long should the bundle last (daily, weekly, monthly)?`,
       });
 
       try {
